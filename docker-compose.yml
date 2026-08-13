@@ -1,0 +1,67 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: rsvp-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: javid5659
+      MYSQL_DATABASE: rsvp_tracker
+      MYSQL_USER: rsvp_user
+      MYSQL_PASSWORD: rsvp_password
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "rsvp_user",
+          "-prsvp_password"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+    container_name: rsvp-backend
+
+    ports:
+      - "5000:5000"
+
+    environment:
+      DATABASE_URL: "mysql://rsvp_user:rsvp_password@mysql:3306/rsvp_tracker"
+      NODE_ENV: production
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: rsvp-frontend
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:5000/api"
+
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

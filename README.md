@@ -32,11 +32,11 @@ docker-compose.yml
 
 ## Users 
 
-User 1:-
+-User 1:-
 Email: javid@gmail.com
 password: password123
 
-User 2:-
+-User 2:-
 Email: rahul@gmail.com
 password: password123
 
